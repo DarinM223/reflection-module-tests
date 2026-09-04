@@ -1,0 +1,10 @@
+CMakeFiles/
+gcm.cache/
+.ninja_deps
+.ninja_log
+build.ninja
+*.cmake
+CMakeCache.txt
+compile_commands.json
+*.a
+/reflection-module-tests

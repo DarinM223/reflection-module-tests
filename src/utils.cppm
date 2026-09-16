@@ -12,6 +12,10 @@ template <auto... vals> struct replicator_type {
   template <class F> constexpr void operator>>(F body) const {
     (body.template operator()<vals>(), ...);
   }
+
+  template <class F> constexpr auto operator<<(F body) const -> decltype(auto) {
+    return body.template operator()<vals...>();
+  }
 };
 
 template <auto... vals> replicator_type<vals...> replicator = {};

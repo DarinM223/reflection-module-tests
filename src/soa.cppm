@@ -2,9 +2,11 @@ export module soa;
 
 import std;
 import utils;
+import derive;
 
 export template <class T> struct SoaVector {
   struct Pointers;
+  struct[[= derive<Debug>]] RefBase;
   consteval {
     define_aggregate(
         ^^Pointers,
@@ -12,7 +14,22 @@ export template <class T> struct SoaVector {
           return data_member_spec(add_pointer(type_of(member)),
                                   {.name = identifier_of(member)});
         }));
+
+    define_aggregate(
+        ^^RefBase,
+        nsdms(^^T) | std::views::transform([](std::meta::info member) {
+          return data_member_spec(add_lvalue_reference(type_of(member)),
+                                  {.name = identifier_of(member)});
+        }));
   }
+
+  struct[[= derive<Debug>]] Ref : RefBase {
+    void operator=(T const &value) {
+      template for (constexpr auto I : std::views::iota(0zu, mems.size())) {
+        this->[:ref_mems[I]:] = value.[:mems[I]:];
+      }
+    }
+  };
 
   void push_back(T const &value) {
     if (size_ == capacity_) {
@@ -30,6 +47,15 @@ export template <class T> struct SoaVector {
     ++size_;
   }
 
+  Ref operator[](std::size_t idx) {
+    return [:expand(ptr_mems):]
+        << [this, idx]<auto... M> { return Ref{pointers_.[:M:][idx]...}; };
+  }
+  T operator[](std::size_t idx) const {
+    return [:expand(ptr_mems):]
+        << [this, idx]<auto... M> { return T{pointers_.[:M:][idx]...}; };
+  }
+
   ~SoaVector() {
     template for (constexpr auto M : ptr_mems) {
       delete_range(pointers_.[:M:]);
@@ -43,6 +69,7 @@ export template <class T> struct SoaVector {
 private:
   static constexpr auto mems = std::define_static_array(nsdms(^^T));
   static constexpr auto ptr_mems = std::define_static_array(nsdms(^^Pointers));
+  static constexpr auto ref_mems = std::define_static_array(nsdms(^^RefBase));
 
   void grow(std::size_t new_capacity) {
     Pointers new_pointers = {};

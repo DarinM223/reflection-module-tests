@@ -16,7 +16,8 @@ add_executable(reflection-module-tests)
 target_compile_features(reflection-module-tests PUBLIC cxx_std_26)
 target_compile_options(reflection-module-tests PRIVATE -freflection)
 target_sources(reflection-module-tests PRIVATE
-  src/main.cpp)
+  src/main.cpp
+)
 target_sources(reflection-module-tests PUBLIC FILE_SET CXX_MODULES FILES
   src/utils.cppm
   src/derive.cppm

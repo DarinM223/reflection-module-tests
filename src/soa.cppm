@@ -6,7 +6,7 @@ import derive;
 
 export template <class T> struct SoaVector {
   struct Pointers;
-  struct[[= derive<Debug>]] RefBase;
+  struct RefBase;
   consteval {
     define_aggregate(
         ^^Pointers,
@@ -23,11 +23,17 @@ export template <class T> struct SoaVector {
         }));
   }
 
-  struct[[= derive<Debug>]] Ref : RefBase {
+  struct[[ = derive<Debug>, = format_as{^^T} ]] Ref : RefBase {
     void operator=(T const &value) {
       template for (constexpr auto I : std::views::iota(0zu, mems.size())) {
         this->[:ref_mems[I]:] = value.[:mems[I]:];
       }
+    }
+
+    // Autoconversion necessary for format_as to work
+    operator T() const {
+      return [:expand(ref_mems):]
+          << [this]<auto... M> { return T{this->[:M:]...}; };
     }
   };
 

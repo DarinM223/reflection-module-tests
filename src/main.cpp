@@ -21,4 +21,5 @@ int main() {
   std::println("points[0] = {}", std::as_const(points)[0]);
   points[0] = Point{.x = 'g', .y = 12, .tags = {4, 5, 6}};
   std::println("points[0] = {}", std::as_const(points)[0]);
+  std::println("points[0] = {}", points[0]);
 }

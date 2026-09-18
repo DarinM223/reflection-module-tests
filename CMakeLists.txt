@@ -21,4 +21,6 @@ target_sources(reflection-module-tests PRIVATE
 target_sources(reflection-module-tests PUBLIC FILE_SET CXX_MODULES FILES
   src/utils.cppm
   src/derive.cppm
-  src/soa.cppm)
+  src/soa.cppm
+  src/nanopass.cppm
+)
